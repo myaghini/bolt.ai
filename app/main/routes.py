@@ -13,7 +13,7 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
 
-def detect_eye_movements(video_path, debounce_time=0.5):
+def detect_eye_movements(video_path, debounce_time=1.5):
     cap = cv2.VideoCapture(video_path)
     fps = cap.get(cv2.CAP_PROP_FPS)
     eye_movement_timestamps = []
@@ -45,7 +45,7 @@ def detect_eye_movements(video_path, debounce_time=0.5):
                 gaze_vector_y = (right_eye_center.y - right_eye_top.y) / eye_height
 
                 # Check if gaze is upward-right
-                if gaze_vector_x > 0.5 and gaze_vector_y < 0.5:
+                if gaze_vector_x > 0.6 and gaze_vector_y < 0.4:
                     timestamp = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000  # Convert to seconds
                     if timestamp - last_detection_time >= debounce_time:
                         eye_movement_timestamps.append(timestamp)

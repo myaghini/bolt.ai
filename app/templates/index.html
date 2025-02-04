@@ -2,37 +2,82 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Upload Video</title>
+    <title>AI-Driven Body Language Analysis Platform</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #1e1e1e;
+            padding: 20px;
+            height: 100vh;
+        }
+        .sidebar h2 {
+            color: #00d4ff;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
         #progressContainer {
             display: none;
             width: 100%;
-            background-color: #ccc;
+            background-color: #333;
             margin-top: 10px;
+            border-radius: 5px;
+            overflow: hidden;
         }
-
         #progressBar {
             width: 0%;
             height: 20px;
-            background-color: #4caf50;
+            background-color: #00d4ff;
             text-align: center;
             color: white;
             line-height: 20px;
         }
+        .upload-container {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+        }
+        button {
+            background-color: #00d4ff;
+            color: #121212;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <h1>Upload Video</h1>
-    <form id="uploadForm" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept="video/*" required>
-        <button type="submit">Upload</button>
-    </form>
-
-    <!-- Progress Bar -->
-    <div id="progressContainer">
-        <div id="progressBar">0%</div>
+    <div class="sidebar">
+        <h2>Bolt</h2>
+        <p>AI-Driven Body Language Analysis Platform</p>
+        <p>Upload videos to analyze eye movements and detect potential deception using AI-powered tracking.</p>
     </div>
-
+    <div class="content">
+        <h1>Upload Video</h1>
+        <div class="upload-container">
+            <form id="uploadForm" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" accept="video/*" required>
+                <button type="submit">Upload</button>
+            </form>
+            <div id="progressContainer">
+                <div id="progressBar">0%</div>
+            </div>
+        </div>
+    </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

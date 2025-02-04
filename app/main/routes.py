@@ -13,10 +13,11 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
 
-def detect_eye_movements(video_path):
+def detect_eye_movements(video_path, debounce_time=0.5):
     cap = cv2.VideoCapture(video_path)
     fps = cap.get(cv2.CAP_PROP_FPS)
     eye_movement_timestamps = []
+    last_detection_time = -debounce_time  # Initialize to allow immediate first detection
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -28,19 +29,42 @@ def detect_eye_movements(video_path):
 
         if results.multi_face_landmarks:
             for face_landmarks in results.multi_face_landmarks:
-                # Get eye landmarks
-                left_eye = face_landmarks.landmark[362]  # Right eye in image
-                right_eye = face_landmarks.landmark[133]  # Left eye in image
+                # Right eye landmarks
+                right_eye_center = face_landmarks.landmark[468]  # Right iris center
+                right_eye_inner_corner = face_landmarks.landmark[133]
+                right_eye_outer_corner = face_landmarks.landmark[33]
+                right_eye_top = face_landmarks.landmark[159]
+                right_eye_bottom = face_landmarks.landmark[145]
 
-                # Check if the eyes are looking up-right
-                if left_eye.y < 0.4 and right_eye.x > 0.6:
+                # Calculate right eye dimensions
+                eye_width = right_eye_outer_corner.x - right_eye_inner_corner.x
+                eye_height = right_eye_bottom.y - right_eye_top.y
+
+                # Calculate gaze direction vector
+                gaze_vector_x = (right_eye_center.x - right_eye_inner_corner.x) / eye_width
+                gaze_vector_y = (right_eye_center.y - right_eye_top.y) / eye_height
+
+                # Check if gaze is upward-right
+                if gaze_vector_x > 0.5 and gaze_vector_y < 0.5:
                     timestamp = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000  # Convert to seconds
-                    eye_movement_timestamps.append(timestamp)
+                    if timestamp - last_detection_time >= debounce_time:
+                        eye_movement_timestamps.append(timestamp)
+                        last_detection_time = timestamp
 
         cv2.waitKey(1)
 
     cap.release()
     return eye_movement_timestamps
+
+
+
+import datetime
+
+def format_time(seconds):
+    """Convert seconds to VTT time format hh:mm:ss.sss"""
+    milliseconds = int((seconds % 1) * 1000)
+    formatted_time = str(datetime.timedelta(seconds=int(seconds))) + f".{milliseconds:03d}"
+    return formatted_time
 
 def generate_subtitle(video_path, subtitle_path):
     timestamps = detect_eye_movements(video_path)
@@ -48,11 +72,12 @@ def generate_subtitle(video_path, subtitle_path):
     with open(subtitle_path, 'w') as f:
         f.write("WEBVTT\n\n")
         for i, timestamp in enumerate(timestamps):
-            start_time = timestamp
-            end_time = start_time + 2  # Show subtitle for 2 seconds
+            start_time = format_time(timestamp)
+            end_time = format_time(timestamp + 2)  # Show subtitle for 2 seconds
             f.write(f"{i + 1}\n")
-            f.write(f"{start_time:.3f} --> {end_time:.3f}\n")
+            f.write(f"{start_time} --> {end_time}\n")
             f.write("Lie detection\n\n")
+
 
 @main.route('/', methods=['GET', 'POST'])
 def upload_video():

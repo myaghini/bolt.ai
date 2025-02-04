@@ -8,7 +8,7 @@
     <h1>View Video</h1>
     <video controls>
         <source src="{{ url_for('main.uploaded_file', filename=video_filename) }}" type="video/mp4">
-        <track src="{{ url_for('main.subtitle_file', filename=subtitle_filename) }}" kind="subtitles" srclang="en" label="English" default>                
+        <track src="{{ url_for('main.subtitle_file', filename=subtitle_filename) }}" kind="subtitles" srclang="en" label="English" default>
         Your browser does not support the video tag.
     </video>
     <br>

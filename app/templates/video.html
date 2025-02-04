@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Video</title>
+</head>
+<body>
+    <h1>View Video</h1>
+    <video controls>
+        <source src="{{ url_for('main.uploaded_file', filename=video_filename) }}" type="video/mp4">
+        <track src="{{ url_for('main.subtitle_file', filename=subtitle_filename) }}" kind="subtitles" srclang="en" label="English" default>                
+        Your browser does not support the video tag.
+    </video>
+    <br>
+    <a href="{{ url_for('main.upload_video') }}">Upload another video</a>
+</body>
+</html>

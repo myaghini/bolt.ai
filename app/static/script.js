@@ -27,10 +27,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         xhr.onload = function () {
             if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText); // Parse JSON response
                 progressBar.style.width = '100%';
                 progressBar.textContent = 'Upload Complete!';
+
                 setTimeout(() => {
-                    window.location.href = xhr.responseURL; // Redirect to video page
+                    if (response.redirect) {
+                        console.log("Redirecting to:", response.redirect); // Debugging
+                        window.location.href = response.redirect; // ✅ Correctly redirect
+                    } else {
+                        alert("Upload successful, but no redirect URL provided.");
+                    }
                 }, 1000);
             } else {
                 alert('Upload failed. Please try again.');

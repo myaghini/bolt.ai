@@ -82,7 +82,7 @@ def generate_subtitle(video_path, subtitle_path):
 @main.route('/', methods=['GET', 'POST'])
 def upload_video():
     if request.method == 'GET':
-        return render_template('index.html')  # Render the upload form
+        return render_template('index.html')
 
     if 'file' not in request.files:
         return {"error": "No file uploaded"}, 400
@@ -100,9 +100,12 @@ def upload_video():
         subtitle_path = os.path.join(current_app.config['SUBTITLE_FOLDER'], subtitle_filename)
         generate_subtitle(video_path, subtitle_path)
 
-        return {"redirect": url_for('main.display_video', filename=filename)}, 200
+        # Return full URL for the redirect to be correctly handled
+        return {"redirect": url_for('main.display_video', filename=filename, _external=True)}, 200
 
     return {"error": "Invalid file format"}, 400
+
+
 
 
 

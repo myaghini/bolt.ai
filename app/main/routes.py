@@ -81,23 +81,30 @@ def generate_subtitle(video_path, subtitle_path):
 
 @main.route('/', methods=['GET', 'POST'])
 def upload_video():
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            return redirect(request.url)
-        file = request.files['file']
-        if file.filename == '':
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            video_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-            file.save(video_path)
+    if request.method == 'GET':
+        return render_template('index.html')  # Render the upload form
 
-            subtitle_filename = os.path.splitext(filename)[0] + '.vtt'
-            subtitle_path = os.path.join(current_app.config['SUBTITLE_FOLDER'], subtitle_filename)
-            generate_subtitle(video_path, subtitle_path)
+    if 'file' not in request.files:
+        return {"error": "No file uploaded"}, 400
 
-            return redirect(url_for('main.display_video', filename=filename))
-    return render_template('index.html')
+    file = request.files['file']
+    if file.filename == '':
+        return {"error": "No selected file"}, 400
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        video_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        file.save(video_path)
+
+        subtitle_filename = os.path.splitext(filename)[0] + '.vtt'
+        subtitle_path = os.path.join(current_app.config['SUBTITLE_FOLDER'], subtitle_filename)
+        generate_subtitle(video_path, subtitle_path)
+
+        return {"redirect": url_for('main.display_video', filename=filename)}, 200
+
+    return {"error": "Invalid file format"}, 400
+
+
 
 @main.route('/video/<filename>')
 def display_video(filename):
